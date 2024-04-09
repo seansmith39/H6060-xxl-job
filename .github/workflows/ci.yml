@@ -81,3 +81,45 @@ jobs:
         with:
           name: maven-dependency-tree
           path: mvn-dependency-tree.zip
+
+  eclipse_steady_scan:
+    needs: [ build_all ]
+    name: Run SCA Eclipse Steady Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download Maven Build
+        uses: actions/download-artifact@v4
+        with:
+          name: maven-build
+          path: .
+
+      - name: Extract Maven Build
+        shell: bash
+        run: tar -xzf maven-build.tgz -C ~
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4.2.1
+        with:
+          distribution: adopt
+          java-version: 8
+
+      - name: Run Eclipse Steady Scan
+        shell: bash
+        run: mvn -Dsteady compile steady:app steady:report
+
+      - name: Upload Eclipse Steady Scan Json Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: eclipse-steady-scan-reports-json
+          path: '**/vulas-report.json'
+
+      - name: Upload Eclipse Steady Scan Html Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: eclipse-steady-scan-reports-html
+          path: '**/vulas-report.html'
