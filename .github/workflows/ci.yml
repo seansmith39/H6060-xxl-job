@@ -70,7 +70,7 @@ jobs:
 
       - name: Generate Maven Dependency Tree
         shell: bash
-        run: mvn compile dependency:tree -DoutputFile=maven_dep_tree.txt -X
+        run: mvn compile dependency:tree -DoutputFile=maven_dep_tree.txt
 
       - name: Create Maven Dependency Tree Zip File
         shell: bash
@@ -110,7 +110,7 @@ jobs:
 
       - name: Run Eclipse Steady Scan
         shell: bash
-        run: mvn -Dsteady compile steady:app steady:report
+        run: mvn compile -Dsteady compile steady:app steady:report
 
       - name: Upload Eclipse Steady Scan Json Results
         uses: actions/upload-artifact@v4
