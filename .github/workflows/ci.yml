@@ -70,7 +70,7 @@ jobs:
 
       - name: Generate Maven Dependency Tree
         shell: bash
-        run: mvn dependency:tree -DoutputFile=maven_dep_tree.txt
+        run: mvn compile dependency:tree -DoutputFile=maven_dep_tree.txt -X
 
       - name: Create Maven Dependency Tree Zip File
         shell: bash
