@@ -175,7 +175,7 @@ jobs:
           path: '**/vulas-report.html'
 
   owasp_dependency_check:
-    needs: [build_all]
+    needs: [ build_all ]
     name: Run SCA OWASP Dependency Check
     runs-on: ubuntu-latest
     steps:
@@ -217,3 +217,36 @@ jobs:
         with:
           name: OWASP Dependency Check Reports
           path: ${{github.workspace}}/reports
+
+  sonarqube_scan:
+    needs: [ build_all ]
+    name: Run SAST SonarQube Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4.2.1
+        with:
+          distribution: adopt
+          java-version: 8
+
+      - name: Rebuild Maven Project
+        shell: bash
+        run: mvn -B package --file pom.xml
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4.2.1
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Run SonarQube Scan
+        shell: bash
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: mvn sonar:sonar -Dsonar.projectKey=xxl-job-H6060 -Dsonar.projectName=xxl-job-H6060
