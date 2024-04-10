@@ -1,9 +1,10 @@
 name: XXL Job CI
 
 on:
+  workflow_dispatch:
   push:
-#    branches:
-#      - main
+    branches:
+      - main
 
 permissions: write-all
 
@@ -86,7 +87,7 @@ jobs:
   run_sca_scanning:
     needs: [ build_all ]
     name: Run SCA Scanning Workflow
-    uses: seansmith39/H6060-Experiment-1-SCA-Scans/.github/workflows/sca_scan_mvn.yml@1.0.0
+    uses: seansmith39/H6060-Experiment-1-SCA-Scans/.github/workflows/sca_scan_mvn.yml@main
     secrets: inherit
     with:
       project-name: xxl-job
