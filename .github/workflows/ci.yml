@@ -280,3 +280,33 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: semgrep.sarif
+
+  insider_scan:
+    needs: [ build_all ]
+    name: Run SAST Insider Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Insider Scan
+        shell: bash
+        run: |
+          wget https://github.com/insidersec/insider/releases/download/3.0.0/insider_3.0.0_linux_x86_64.tar.gz
+          tar -xf insider_3.0.0_linux_x86_64.tar.gz
+          chmod +x insider
+          ./insider --tech java --target . 
+
+      - name: Upload Insider JSON Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: insider-report.json
+          path: '**/report.json'
+
+      - name: Upload Insider HTML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: insider-report.html
+          path: '**/report.html'
