@@ -3,13 +3,13 @@ name: XXL Job CI
 on:
   workflow_dispatch:
   push:
-#    branches:
-#      - main
+    branches:
+      - main
 
 permissions: write-all
 
 jobs:
-  build_all:
+  build_application:
     name: Compile with JDK 8
     runs-on: ubuntu-latest
     steps:
@@ -85,7 +85,7 @@ jobs:
           path: mvn-dependency-tree.zip
 
   run_sca_scanning:
-    needs: [ build_all ]
+    needs: [ build_application ]
     name: Run SCA Scanning Workflow
     uses: seansmith39/H6060-Experiment-1-SCA-Scans/.github/workflows/sca_scan_mvn.yml@main
     secrets: inherit
@@ -95,116 +95,12 @@ jobs:
       java-distribution: adopt
       mvn-build-artifact: maven-build
 
-  sonarqube_scan:
-    needs: [ build_all ]
-    name: Run SAST SonarQube Scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Java JDK
-        uses: actions/setup-java@v4.2.1
-        with:
-          distribution: adopt
-          java-version: 8
-
-      - name: Rebuild Maven Project
-        shell: bash
-        run: mvn -B package --file pom.xml
-
-      - name: Setup Java JDK
-        uses: actions/setup-java@v4.2.1
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Run SonarQube Scan
-        shell: bash
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: mvn sonar:sonar -Dsonar.projectKey=xxl-job-H6060 -Dsonar.projectName=xxl-job-H6060
-
-  semgrep_scan:
-    needs: [ build_all ]
-    name: Run SAST Semgrep Scan
-    runs-on: ubuntu-latest
-    env:
-      SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-    container:
-      image: semgrep/semgrep
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download Maven Dependency Tree
-        uses: actions/download-artifact@v4
-        with:
-          name: maven-dependency-tree
-
-      - name: Run Semgrep Scan
-        shell: bash
-        run: |
-          unzip -o mvn-dependency-tree.zip
-          semgrep scan --config=p/ci --sarif > semgrep.sarif
-
-      - name: Upload Semgrep Result To GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: semgrep.sarif
-
-  horusec_scan:
-    needs: [ build_all ]
-    name: Run SAST Horusec Scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run Horusec Scan
-        uses: fike/horusec-action@v0.2.2
-        with:
-          arguments: -c="horusec-config.json" -w -j -p="./" -e="false" -o="json" -O="hoursec_report.json"
-
-      - name: Upload Horusec JSON Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: hoursec-scan-report
-          path: '**/hoursec_report.json'
-
-  insider_scan:
-    needs: [ build_all ]
-    name: Run SAST Insider Scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run Insider Scan
-        shell: bash
-        run: |
-          wget https://github.com/insidersec/insider/releases/download/3.0.0/insider_3.0.0_linux_x86_64.tar.gz
-          tar -xf insider_3.0.0_linux_x86_64.tar.gz
-          chmod +x insider
-          ./insider --tech java --target . 
-
-      - name: Upload Insider JSON Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: insider-report.json
-          path: '**/report.json'
-
-      - name: Upload Insider HTML Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: insider-report.html
-          path: '**/report.html'
+  run_sast_scanning:
+    needs: [ build_application ]
+    name: Run SAST Scanning Workflow
+    uses: seansmith39/H6060-Experiment-1-SAST-Scans/.github/workflows/sast_scan_mvn.yml@main
+    secrets: inherit
+    with:
+      sonarqube-project-name: xxl-job-H6060
+      mvn-build-command: mvn -B package --file pom.xml
+      deepsource_scan_enabled: false
