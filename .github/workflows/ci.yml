@@ -87,7 +87,7 @@ jobs:
   run_sca_scanning:
     needs: [ build_application ]
     name: Run SCA Scanning Workflow
-    uses: seansmith39/H6060-Experiment-1-SCA-Scans/.github/workflows/sca_scan_mvn.yml@v1.0.0
+    uses: seansmith39/H6060-Experiment-1-SCA-Scans/.github/workflows/sca_scan_mvn.yml@v1.0.1
     secrets: inherit
     with:
       project-name: xxl-job
