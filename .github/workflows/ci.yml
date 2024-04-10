@@ -250,3 +250,33 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: mvn sonar:sonar -Dsonar.projectKey=xxl-job-H6060 -Dsonar.projectName=xxl-job-H6060
+
+  semgrep_scan:
+    needs: [ build_all ]
+    name: Run SAST Semgrep Scan
+    runs-on: ubuntu-latest
+    env:
+      SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+    container:
+      image: semgrep/semgrep
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download Maven Dependency Tree
+        uses: actions/download-artifact@v4
+        with:
+          name: maven-dependency-tree
+
+      - name: Run Semgrep Scan
+        shell: bash
+        run: |
+          unzip -o mvn-dependency-tree.zip
+          semgrep scan --config=p/ci --sarif > semgrep.sarif
+
+      - name: Upload Semgrep Result To GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep.sarif
