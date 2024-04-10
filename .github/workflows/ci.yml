@@ -281,6 +281,27 @@ jobs:
         with:
           sarif_file: semgrep.sarif
 
+  horusec_scan:
+    needs: [ build_all ]
+    name: Run SAST Horusec Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Horusec Scan
+        uses: fike/horusec-action@v0.2.2
+        with:
+          arguments: -c="horusec-config.json" -w -j -p="./" -e="false" -o="json" -O="hoursec_report.json"
+
+      - name: Upload Horusec JSON Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: hoursec-scan-report
+          path: '**/hoursec_report.json'
+
   insider_scan:
     needs: [ build_all ]
     name: Run SAST Insider Scan
