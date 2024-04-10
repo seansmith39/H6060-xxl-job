@@ -92,6 +92,7 @@ jobs:
     with:
       project-name: xxl-job
       java-version: 8
+      java-distribution: adopt
       mvn-build-artifact: maven-build
 
   sonarqube_scan:
