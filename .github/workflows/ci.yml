@@ -98,9 +98,9 @@ jobs:
   run_sast_scanning:
     needs: [ build_application ]
     name: Run SAST Scanning Workflow
-    uses: seansmith39/H6060-Experiment-1-SAST-Scans/.github/workflows/sast_scan_mvn.yml@v1.0.0
+    uses: seansmith39/H6060-Experiment-1-SAST-Scans/.github/workflows/sast_scan_mvn.yml@v1.0.2
     secrets: inherit
     with:
       sonarqube-project-name: xxl-job-H6060
       mvn-build-command: mvn -B package --file pom.xml
-      deepsource-scan-enabled: false
+      jacoco-scan-enabled: false
