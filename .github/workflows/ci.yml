@@ -104,4 +104,3 @@ jobs:
       sonarqube-project-name: xxl-job-H6060
       mvn-build-command: mvn -B package --file pom.xml
       deepsource-scan-enabled: false
-
