@@ -103,4 +103,4 @@ jobs:
     with:
       sonarqube-project-name: xxl-job-H6060
       mvn-build-command: mvn -B package --file pom.xml
-      jacoco-scan-enabled: false
+      deepsource-scan-enabled: false
